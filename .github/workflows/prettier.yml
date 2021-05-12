@@ -1,5 +1,6 @@
 # This GitHub action prettifies code.
-name: CI-Prettier
+name: CI - Prettier
+
 on:
   push:
     branches:
@@ -9,6 +10,7 @@ on:
     branches:
       - master
       - develop
+
 jobs:
   prettier:
     runs-on: ubuntu-18.04
@@ -20,6 +22,7 @@ jobs:
           ref: ${{ github.head_ref }}
           # This is important to fetch the changes to the previous commit
           fetch-depth: 0
+
       - name: Prettify code
         uses: creyD/prettier_action@v3.1
         with:

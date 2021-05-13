@@ -1,9 +1,9 @@
 # This GitHub action deploys to production
 name: CD - Cloud Run
 on:
-  push:
-    branches:
-      - master
+#  push:
+#    branches:
+#      - master
 
 jobs:
   build_and_deploy:
@@ -13,7 +13,7 @@ jobs:
       IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}
     steps:
       - name: Send Credentials to Google
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v0.2.0
         with:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           service_account_email: ${{ secrets.GCP_EMAIL }}
@@ -24,17 +24,14 @@ jobs:
 
       - name: Configure gcloud
         run: |
-          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+          gcloud config set project ${{ secrets.GCP_PROJECT }}
+          gcloud config set compute/region us-east1
 
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Deploy to Instance
-        run: |
-          gcloud compute ssh ${{ secrets.GCP_COMPUTE_INSTANCE_NAME }} --zone us-central1-a
-          cd ~/poly-doc-backend
-          git checkout master
-          git pull origin master
-          docker-compose down
-          docker-compose up --build --remove-orphan -d
-          exit
+      - name: Build Docker Image
+        run: docker build . -t $IMAGE_NAME
+
+      - name: Push Docker Image
+        run: docker push $IMAGE_NAME
